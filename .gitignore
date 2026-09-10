@@ -1,2 +1,10 @@
-# Local Netlify folder
-.netlify
+# macOS metadata
+.DS_Store
+
+# Local Netlify state
+.netlify/
+
+# Local environment and secrets
+.env
+.env.*
+*.local
