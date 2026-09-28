@@ -56,13 +56,13 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  const lightLayer = L.tileLayer(
-    'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-    { attribution: '&copy; OpenStreetMap & CARTO', subdomains: 'abcd', maxZoom: 19 }
-  );
-  const darkLayer = L.tileLayer(
-    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    { attribution: '&copy; OpenStreetMap & CARTO', subdomains: 'abcd', maxZoom: 19 }
+  const baseLayer = L.tileLayer(
+    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      className: 'map-tiles',
+      maxZoom: 19
+    }
   );
 
   const initialCenter = [38.1938, 15.5540];
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   L.control.attribution({ position: 'bottomleft', prefix: 'Leaflet' }).addTo(map);
   L.control.zoom({ position: 'bottomright' }).addTo(map);
-  map.addLayer(initialDark ? darkLayer : lightLayer);
+  map.addLayer(baseLayer);
 
   const markerCluster = L.markerClusterGroup({
     chunkedLoading: true,
@@ -759,14 +759,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const themeMeta = document.querySelector('meta[name="theme-color"]');
     if (themeMeta) themeMeta.setAttribute('content', isDark ? '#101820' : '#003366');
-
-    if (isDark && map.hasLayer(lightLayer)) {
-      map.removeLayer(lightLayer);
-      map.addLayer(darkLayer);
-    } else if (!isDark && map.hasLayer(darkLayer)) {
-      map.removeLayer(darkLayer);
-      map.addLayer(lightLayer);
-    }
   }
 
   function buildPopupHtml(stop) {
