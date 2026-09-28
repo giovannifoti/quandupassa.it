@@ -4,6 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const LOCATION_FOCUS_ZOOM = 15;
   const DAY_MS = 24 * 60 * 60 * 1000;
   const MESSINA_COORDS = { lat: 38.1938, lon: 15.5540 };
+  const MAP_STYLES = {
+    light: 'https://tiles.openfreemap.org/styles/positron',
+    dark: 'https://tiles.openfreemap.org/styles/dark'
+  };
   const ZONE_LABELS = { nord: 'Nord', centro: 'Centro', sud: 'Sud' };
   const ZONE_ORDER = ['nord', 'centro', 'sud'];
 
@@ -51,19 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (!window.L || !L.markerClusterGroup) {
+  if (!window.L || !L.markerClusterGroup || !L.maplibreGL) {
     setStatus('Impossibile caricare la mappa. Controlla la connessione.', 6000);
     return;
   }
 
-  const baseLayer = L.tileLayer(
-    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      className: 'map-tiles',
-      maxZoom: 19
-    }
-  );
+  const initialDark = shouldUseDarkTheme(new Date());
+  let activeMapStyle = initialDark ? MAP_STYLES.dark : MAP_STYLES.light;
+  const baseLayer = L.maplibreGL({ style: activeMapStyle });
 
   const initialCenter = [38.1938, 15.5540];
   const defaultStopIcon = new L.Icon.Default();
@@ -74,13 +73,13 @@ document.addEventListener('DOMContentLoaded', () => {
     iconAnchor: [17, 42],
     popupAnchor: [0, -38]
   });
-  const initialDark = shouldUseDarkTheme(new Date());
-
   document.body.classList.toggle('dark', Boolean(initialDark));
 
   const map = L.map('map', {
     center: initialCenter,
     zoom: 13,
+    minZoom: 3,
+    maxZoom: 19,
     preferCanvas: true,
     zoomControl: false,
     attributionControl: false
@@ -759,6 +758,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const themeMeta = document.querySelector('meta[name="theme-color"]');
     if (themeMeta) themeMeta.setAttribute('content', isDark ? '#101820' : '#003366');
+
+    const nextMapStyle = isDark ? MAP_STYLES.dark : MAP_STYLES.light;
+    if (nextMapStyle !== activeMapStyle) {
+      activeMapStyle = nextMapStyle;
+      baseLayer.getMaplibreMap().setStyle(activeMapStyle);
+    }
   }
 
   function buildPopupHtml(stop) {

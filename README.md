@@ -36,8 +36,8 @@ Questa architettura rende il progetto semplice da mantenere, economico da pubbli
 ## Stack tecnico
 
 - **HTML, CSS e JavaScript vanilla** per mantenere il progetto rapido e facilmente ispezionabile.
-- **Leaflet** per la mappa interattiva.
-- **OpenStreetMap** per la cartografia di base, senza chiavi API nel client.
+- **Leaflet e MapLibre GL** per la mappa interattiva e la resa vettoriale.
+- **OpenFreeMap e OpenStreetMap** per una cartografia moderna, senza chiavi API nel client.
 - **Leaflet.markercluster** per gestire molte fermate senza appesantire la navigazione.
 - **Service Worker** per cache e supporto PWA.
 - **Dataset JSON statico** con coordinate e riferimenti pubblici delle fermate.

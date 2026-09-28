@@ -85,10 +85,6 @@ button {
   max-height: none !important;
 }
 
-.map-tiles {
-  transition: filter 250ms ease;
-}
-
 /* -------- TOP CONTROLS -------- */
 .top-bar {
   position: fixed;
@@ -784,10 +780,6 @@ body.dark .leaflet-control-attribution {
 
 body.dark .leaflet-control-attribution a {
   color: var(--brand-strong);
-}
-
-body.dark .map-tiles {
-  filter: brightness(0.62) saturate(0.75) contrast(1.15);
 }
 
 /* -------- MOBILE -------- */
