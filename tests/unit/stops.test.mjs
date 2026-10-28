@@ -2,7 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import {
-  arrivalsUrl,
+  ATM_LINKS,
+  appStoreFor,
   buildSearchText,
   distanceMeters,
   extractStopCode,
@@ -40,11 +41,19 @@ test('gli id sono unici e compatibili con la versione precedente', () => {
   assert.ok(stops.some(stop => stop.id === 'palina-1557-2'), 'i duplicati ricevono un suffisso');
 });
 
-test('il link agli orari è ricostruito solo da codici sicuri', () => {
-  assert.equal(arrivalsUrl('832'), 'https://www.atmmessinaspa.it/smartpoles2.php?palina=832');
-  assert.equal(arrivalsUrl(''), '');
-  assert.equal(arrivalsUrl('"><script>'), '');
-  assert.equal(arrivalsUrl('javascript:alert(1)'), '');
+test('lo store dell\'app ATM MovUp dipende dal dispositivo', () => {
+  assert.equal(appStoreFor('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)'), ATM_LINKS.appStore);
+  assert.equal(appStoreFor('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', 5), ATM_LINKS.appStore);
+  assert.equal(appStoreFor('Mozilla/5.0 (Linux; Android 15; Pixel 9)'), ATM_LINKS.googlePlay);
+  assert.equal(appStoreFor('Mozilla/5.0 (Windows NT 10.0; Win64; x64)'), null);
+  for (const url of Object.values(ATM_LINKS)) assert.equal(new URL(url).protocol, 'https:');
+});
+
+test('nessun collegamento alle pagine "smartpoles" non accessibili', async () => {
+  for (const file of ['public/js/app.js', 'public/index.html', 'public/fermate/index.html']) {
+    const content = await readFile(new URL(`../../${file}`, import.meta.url), 'utf8');
+    assert.doesNotMatch(content, /smartpoles/, file);
+  }
 });
 
 test('estrazione del codice palina', () => {
@@ -60,10 +69,10 @@ test('i dati malevoli vengono scartati senza eccezioni', () => {
     { name: '', lat: 38.2, lon: 15.5 },
     { name: 'Fuori area', lat: 45, lon: 9 },
     { name: 'NaN', lat: 'abc', lon: 15.5 },
-    { name: '<img src=x onerror=alert(1)>', lat: 38.2, lon: 15.55, url: 'javascript:alert(1)' }
+    { name: '<img src=x onerror=alert(1)>', lat: 38.2, lon: 15.55, url: 'https://x.it/?palina="><script>' }
   ]);
   assert.equal(parsed.length, 1);
-  assert.equal(parsed[0].arrivalsUrl, '');
+  assert.equal(parsed[0].code, '');
   assert.throws(() => parseStops({}), TypeError);
 });
 

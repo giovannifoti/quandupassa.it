@@ -34,12 +34,11 @@ for (const stop of stops) {
 
 const brandMark = '<svg class="brand-mark" viewBox="0 0 64 80" aria-hidden="true" focusable="false"><path class="brand-pin" d="M32 2C15.4 2 2 15.1 2 31.5 2 52 32 78 32 78s30-26 30-46.5C62 15.1 48.6 2 32 2Z"/><rect class="brand-bus" x="16" y="14" width="32" height="33" rx="7"/><rect class="brand-glass" x="20.5" y="18.5" width="23" height="13" rx="3"/><circle class="brand-glass" cx="23.5" cy="39.5" r="2.6"/><circle class="brand-glass" cx="40.5" cy="39.5" r="2.6"/><rect class="brand-bus" x="19" y="44" width="6" height="7" rx="2"/><rect class="brand-bus" x="39" y="44" width="6" height="7" rx="2"/></svg>';
 
-// Markup compatto: il contesto del <li> rende chiaro lo scopo di "Mappa" e
-// "Orari" (WCAG 2.4.4) senza ripetere il nome della fermata in ogni link.
+// Markup compatto: il contesto del <li> rende chiaro lo scopo di "Mappa"
+// (WCAG 2.4.4) senza ripetere il nome della fermata in ogni link.
 function stopItem(stop) {
   const meta = `${zoneLabel(stop.zone)}${stop.code ? ` · palina ${escapeHtml(stop.code)}` : ''}`;
-  const arrivals = stop.arrivalsUrl ? `<a href="${escapeHtml(stop.arrivalsUrl)}" rel="nofollow">Orari</a>` : '';
-  return `<li><span><b>${escapeHtml(stop.name)}</b><small>${meta}</small></span><a href="/?fermata=${encodeURIComponent(stop.id)}" rel="nofollow">Mappa</a>${arrivals}</li>`;
+  return `<li><span><b>${escapeHtml(stop.name)}</b><small>${meta}</small></span><a href="/?fermata=${encodeURIComponent(stop.id)}" rel="nofollow">Mappa</a></li>`;
 }
 
 const letters = [...groups.keys()];
@@ -54,7 +53,7 @@ const fermateHtml = `<!doctype html>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Elenco fermate autobus ATM Messina dalla A alla Z – Quando Passa</title>
-  <meta name="description" content="Elenco completo delle ${stops.length.toLocaleString('it-IT')} fermate degli autobus ATM di Messina in ordine alfabetico, con zona, codice palina, posizione sulla mappa e collegamento agli orari.">
+  <meta name="description" content="Elenco completo delle ${stops.length.toLocaleString('it-IT')} fermate degli autobus ATM di Messina in ordine alfabetico, con zona, codice palina e posizione sulla mappa.">
   <link rel="canonical" href="${SITE}/fermate/">
   <meta name="robots" content="index, follow">
   <meta name="color-scheme" content="light dark">
@@ -63,7 +62,7 @@ const fermateHtml = `<!doctype html>
   <meta property="og:locale" content="it_IT">
   <meta property="og:site_name" content="Quando Passa">
   <meta property="og:title" content="Elenco fermate autobus ATM Messina – Quando Passa">
-  <meta property="og:description" content="Tutte le fermate ATM di Messina in ordine alfabetico, con mappa e orari della palina.">
+  <meta property="og:description" content="Tutte le fermate ATM di Messina in ordine alfabetico, con zona, codice palina e mappa.">
   <meta property="og:url" content="${SITE}/fermate/">
   <meta property="og:image" content="${SITE}/img/og-image.png">
   <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
@@ -94,7 +93,7 @@ const fermateHtml = `<!doctype html>
     <main>
       <nav aria-label="Percorso di navigazione" class="visually-hidden"><a href="/">Mappa fermate</a> › Elenco fermate</nav>
       <h1>Fermate autobus ATM Messina dalla A alla Z</h1>
-      <p class="lead">L'elenco di tutte le ${stops.length.toLocaleString('it-IT')} fermate degli autobus ATM di Messina presenti su Quando Passa. Per ogni fermata puoi vederne la posizione sulla mappa o aprire gli orari della palina sul sito di ATM Messina.</p>
+      <p class="lead">L'elenco di tutte le ${stops.length.toLocaleString('it-IT')} fermate degli autobus ATM di Messina presenti su Quando Passa. Per ogni fermata trovi zona, codice palina e posizione sulla mappa. Per i tempi di attesa in tempo reale usa l'app ufficiale ATM MovUp (<a href="https://apps.apple.com/it/app/atm-movup/id1576162531" rel="noopener" target="_blank">App Store</a>, <a href="https://play.google.com/store/apps/details?id=net.pluservice.atmmessina" rel="noopener" target="_blank">Google Play</a>); gli <a href="https://www.atmmessinaspa.it/servizio_bus.php?pag=2&amp;tipo=1" rel="noopener" target="_blank">orari delle linee</a> sono sul sito ATM.</p>
       <div class="filter" id="filter" hidden>
         <label for="filter-input">Filtra l'elenco</label>
         <input id="filter-input" type="search" placeholder="Es. Cavour, viale San Martino" autocomplete="off" spellcheck="false" aria-describedby="filter-status">
@@ -111,7 +110,7 @@ ${listHtml}
       <p class="empty" id="filter-empty" hidden>Nessuna fermata corrisponde alla ricerca.</p>
     </main>
     <footer class="page-footer">
-      <p>Gli orari sono pubblicati da <a href="https://www.atmmessinaspa.it/" rel="noopener" target="_blank">ATM Messina</a>. Quando Passa è un progetto di <a href="https://github.com/giovannifoti" rel="noopener" target="_blank">Giovanni Foti</a>.</p>
+      <p>Orari e tempi di attesa sono pubblicati da <a href="https://www.atmmessinaspa.it/" rel="noopener" target="_blank">ATM Messina</a>. Quando Passa è un progetto di <a href="https://github.com/giovannifoti" rel="noopener" target="_blank">Giovanni Foti</a>.</p>
     </footer>
   </div>
 </body>
