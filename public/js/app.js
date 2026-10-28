@@ -471,7 +471,7 @@ function renderStopView(stop) {
   }
   if (chips.childElementCount) fragment.append(chips);
 
-  fragment.append(timesSection());
+  fragment.append(timesSection(stop));
 
   const isFavorite = favorites.has(stop);
   const favoriteButton = el('button', {
@@ -514,29 +514,33 @@ function renderStopView(stop) {
   dom.sheetBody.append(fragment);
 }
 
-// Tempi di attesa e orari: solo canali ufficiali ATM effettivamente raggiungibili.
-function timesSection() {
+// Orari: la pagina della palina ATM (la stessa del QR code alla fermata) è
+// l'azione principale; app ATM MovUp e orari delle linee restano come
+// alternativa per quando il sito ATM non risponde.
+function timesSection(stop) {
   const section = el('div', { class: 'times' });
+  const external = (href, attributes, ...children) => el('a', { href, target: '_blank', rel: 'noopener', ...attributes }, ...children);
   const store = appStoreFor(navigator.userAgent, navigator.maxTouchPoints);
-  const appLink = (href, label, extraClass = '') => {
-    const link = el('a', { class: `button button-primary ${extraClass}`.trim(), href, target: '_blank', rel: 'noopener' },
-      icon('i-clock'), el('span', {}, label), icon('i-external', 'icon-small'));
-    link.setAttribute('aria-label', `${label}: scarica l'app ufficiale ATM MovUp (si apre in una nuova scheda)`);
-    return link;
-  };
+  const appLinks = store
+    ? [external(store, {}, 'app ATM MovUp')]
+    : ['app ATM MovUp (', external(ATM_LINKS.appStore, {}, 'App Store'), ', ', external(ATM_LINKS.googlePlay, {}, 'Google Play'), ')'];
+  const linesLink = external(ATM_LINKS.lines, {}, 'orari delle linee');
 
-  if (store) {
-    section.append(appLink(store, 'Tempi di attesa con ATM MovUp', 'button-block'));
+  if (stop.arrivalsUrl) {
+    const arrivals = external(stop.arrivalsUrl, { class: 'button button-primary button-block' },
+      icon('i-clock'), el('span', {}, 'Orari della fermata'), icon('i-external', 'icon-small'));
+    arrivals.setAttribute('aria-label', `Orari della fermata ${stop.name} sul sito ATM Messina (si apre in una nuova scheda)`);
+    section.append(
+      arrivals,
+      el('p', { class: 'hint' },
+        'Si apre la pagina della palina sul sito ATM, la stessa del QR code alla fermata. Se ATM non risponde, prova più tardi o usa l’',
+        ...appLinks, ' oppure gli ', linesLink, '.')
+    );
   } else {
-    section.append(el('div', { class: 'store-row' },
-      appLink(ATM_LINKS.appStore, 'App Store'),
-      appLink(ATM_LINKS.googlePlay, 'Google Play')
-    ));
+    section.append(el('p', { class: 'notice' },
+      'Per questa fermata manca il codice palina, quindi non possiamo aprire la sua pagina ATM. Puoi usare l’',
+      ...appLinks, ' oppure consultare gli ', linesLink, '.'));
   }
-  section.append(el('p', { class: 'hint' },
-    'I tempi di attesa in tempo reale sono nell’app ufficiale ATM MovUp. ',
-    el('a', { href: ATM_LINKS.lines, target: '_blank', rel: 'noopener' }, 'Orari delle linee sul sito ATM')
-  ));
   return section;
 }
 
@@ -586,7 +590,7 @@ function renderFavoritesView() {
     dom.sheetBody.append(el('div', { class: 'empty-state' },
       icon('i-star', 'empty-icon'),
       el('p', { class: 'empty-title' }, 'Nessuna fermata salvata'),
-      el('p', {}, 'Apri una fermata dalla mappa o dalla ricerca e tocca «Salva»: la ritroverai qui e in giallo sulla mappa.')
+      el('p', {}, 'Apri una fermata dalla mappa o dalla ricerca e tocca «Salva»: la ritroverai qui, con gli orari a portata di un tocco.')
     ));
     return;
   }
@@ -614,6 +618,17 @@ function renderFavoritesView() {
 
 function favoriteActions(stop) {
   const actions = [];
+  if (stop.arrivalsUrl) {
+    const arrivals = el('a', {
+      class: 'icon-button icon-button-tonal',
+      href: stop.arrivalsUrl,
+      target: '_blank',
+      rel: 'noopener',
+      title: 'Orari della fermata'
+    }, icon('i-clock'));
+    arrivals.setAttribute('aria-label', `Orari di ${stop.name} sul sito ATM (nuova scheda)`);
+    actions.push(arrivals);
+  }
   const remove = el('button', {
     class: 'icon-button',
     type: 'button',

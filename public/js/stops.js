@@ -1,8 +1,11 @@
 // Gestione dati fermate: normalizzazione, ricerca e distanze.
 // Modulo senza dipendenze dal DOM, così può essere testato con Node.
 
-// Canali ufficiali ATM verificati: la pagina "smartpoles" per palina non è
-// accessibile dall'esterno ("Accesso non consentito"), quindi non va linkata.
+// Pagina della palina sul sito ATM: è la stessa aperta dal QR code esposto
+// alle fermate. A volte ATM la rende temporaneamente irraggiungibile
+// ("Accesso non consentito"): per questo offriamo anche i canali alternativi.
+const ATM_POLE_URL = 'https://www.atmmessinaspa.it/smartpoles2.php';
+
 export const ATM_LINKS = {
   lines: 'https://www.atmmessinaspa.it/servizio_bus.php?pag=2&tipo=1',
   appStore: 'https://apps.apple.com/it/app/atm-movup/id1576162531',
@@ -54,6 +57,19 @@ export function tokenize(query) {
     .trim()
     .split(' ')
     .filter(Boolean);
+}
+
+// Il link alla palina viene ricostruito da codice e parametro rnd validati,
+// mai copiato dal dataset: un dato corrotto non può iniettare URL arbitrari.
+export function arrivalsUrl(code, rnd = '') {
+  if (!/^[0-9A-Za-z_-]{1,12}$/.test(code)) return '';
+  const url = `${ATM_POLE_URL}?palina=${encodeURIComponent(code)}`;
+  return /^\d{1,6}$/.test(rnd) ? `${url}&rnd=${rnd}` : url;
+}
+
+export function extractRnd(url) {
+  const match = String(url ?? '').match(/[?&]rnd=(\d{1,6})(?:&|#|$)/);
+  return match ? match[1] : '';
 }
 
 export function extractStopCode(url) {
@@ -140,6 +156,7 @@ export function parseStops(raw) {
       lat,
       lon,
       zone: getZone(lat),
+      arrivalsUrl: arrivalsUrl(code, extractRnd(item.url)),
       searchText: buildSearchText(name)
     });
   });
