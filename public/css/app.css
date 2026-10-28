@@ -65,6 +65,30 @@ body {
   box-shadow: var(--shadow-lg);
 }
 
+/* Attribuzione cartografica (obbligatoria per OpenFreeMap / OpenStreetMap) */
+.map-attribution {
+  position: absolute;
+  bottom: calc(68px + var(--gutter) + var(--safe-bottom));
+  left: calc(var(--gutter) + var(--safe-left));
+  z-index: 2;
+  max-width: calc(100% - 2 * var(--gutter));
+  margin: 0;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--ink);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+}
+
+.map-attribution a {
+  color: inherit;
+}
+
+.has-sheet .map-attribution {
+  display: none;
+}
+
 /* Controlli MapLibre */
 .map-area .maplibregl-ctrl-bottom-left,
 .map-area .maplibregl-ctrl-bottom-right {
@@ -867,8 +891,15 @@ body {
     bottom: calc(8px + var(--safe-bottom));
   }
 
-  .map-area .maplibregl-ctrl-bottom-left {
+  .map-area .maplibregl-ctrl-bottom-left,
+  .map-attribution {
     left: calc(var(--panel-width) + var(--gutter) * 2 + var(--safe-left));
+  }
+
+  .map-attribution,
+  .has-sheet .map-attribution {
+    display: block;
+    bottom: calc(8px + var(--safe-bottom));
   }
 
   .toast,

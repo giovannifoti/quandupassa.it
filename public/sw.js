@@ -1,6 +1,6 @@
 // Service worker: app utilizzabile offline (ricerca, preferiti, elenco fermate).
 // Le tessere della mappa (OpenFreeMap) non vengono salvate.
-const VERSION = 'v20';
+const VERSION = 'v21';
 const SHELL_CACHE = `qp-shell-${VERSION}`;
 const VENDOR_CACHE = 'qp-vendor-maplibre-6.16.0';
 const SHELL_ASSETS = [

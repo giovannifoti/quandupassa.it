@@ -231,7 +231,7 @@ test('accessibilità automatica (axe-core, WCAG 2.2 AA)', async () => {
         const result = await window.axe.run(document, {
           runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] },
           // La mappa è un canvas WebGL: il contrasto delle etichette cartografiche non è valutabile.
-          exclude: [['.maplibregl-canvas-container'], ['.maplibregl-ctrl-attrib']]
+          exclude: [['.maplibregl-canvas-container']]
         });
         return result.violations.map(v => `${v.id}: ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(', ')}`);
       });

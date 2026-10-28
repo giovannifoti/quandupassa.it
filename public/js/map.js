@@ -56,7 +56,8 @@ export async function createMap({ container, dark, padding, onStopSelect, onErro
     minZoom: 9,
     maxZoom: 19,
     maxBounds: [[14.8, 37.7], [16.3, 38.7]],
-    attributionControl: { compact: true },
+    // Attribuzione resa nell'HTML (visibile subito, senza spostamenti del layout).
+    attributionControl: false,
     dragRotate: false,
     pitchWithRotate: false,
     touchPitch: false,
