@@ -4,6 +4,8 @@ import { readFile } from 'node:fs/promises';
 import {
   ATM_LINKS,
   appStoreFor,
+  arrivalsUrl,
+  extractRnd,
   buildSearchText,
   distanceMeters,
   extractStopCode,
@@ -49,10 +51,26 @@ test('lo store dell\'app ATM MovUp dipende dal dispositivo', () => {
   for (const url of Object.values(ATM_LINKS)) assert.equal(new URL(url).protocol, 'https:');
 });
 
-test('nessun collegamento alle pagine "smartpoles" non accessibili', async () => {
-  for (const file of ['public/js/app.js', 'public/index.html', 'public/fermate/index.html']) {
-    const content = await readFile(new URL(`../../${file}`, import.meta.url), 'utf8');
-    assert.doesNotMatch(content, /smartpoles/, file);
+test('il link alla palina è ricostruito solo da valori sicuri, come il QR code', () => {
+  assert.equal(arrivalsUrl('832', '24'), 'https://www.atmmessinaspa.it/smartpoles2.php?palina=832&rnd=24');
+  assert.equal(arrivalsUrl('832'), 'https://www.atmmessinaspa.it/smartpoles2.php?palina=832');
+  assert.equal(arrivalsUrl('832', '1;alert(1)'), 'https://www.atmmessinaspa.it/smartpoles2.php?palina=832');
+  assert.equal(arrivalsUrl(''), '');
+  assert.equal(arrivalsUrl('"><script>'), '');
+  assert.equal(arrivalsUrl('javascript:alert(1)'), '');
+  assert.equal(extractRnd('https://www.atmmessinaspa.it/smartpoles2.php?palina=832&rnd=24'), '24');
+  assert.equal(extractRnd('https://www.atmmessinaspa.it/smartpoles2.php?palina=832&rnd=x'), '');
+});
+
+test('quasi tutte le fermate hanno il link alla palina identico al dataset', () => {
+  const withLink = stops.filter(stop => stop.arrivalsUrl);
+  assert.ok(withLink.length >= 1415, `fermate con link: ${withLink.length}`);
+  const original = new Map(raw.map((item, index) => [index, item.url]));
+  for (const stop of withLink) {
+    const expected = new URL(original.get(stop.index));
+    const actual = new URL(stop.arrivalsUrl);
+    assert.equal(actual.searchParams.get('palina'), expected.searchParams.get('palina'));
+    assert.equal(actual.searchParams.get('rnd'), expected.searchParams.get('rnd'));
   }
 });
 
@@ -73,6 +91,7 @@ test('i dati malevoli vengono scartati senza eccezioni', () => {
   ]);
   assert.equal(parsed.length, 1);
   assert.equal(parsed[0].code, '');
+  assert.equal(parsed[0].arrivalsUrl, '');
   assert.throws(() => parseStops({}), TypeError);
 });
 
