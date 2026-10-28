@@ -1,0 +1,23 @@
+{
+  "name": "quandupassa.it",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Mappa delle fermate autobus ATM di Messina: ricerca, fermate vicine e preferiti.",
+  "type": "module",
+  "scripts": {
+    "vendor": "node scripts/vendor.mjs",
+    "build": "node scripts/build-pages.mjs",
+    "check": "node scripts/build-pages.mjs --check",
+    "serve": "node scripts/serve.mjs",
+    "test": "node --test \"tests/unit/*.test.mjs\"",
+    "test:e2e": "node --test --test-concurrency=1 \"tests/e2e/*.test.mjs\""
+  },
+  "devDependencies": {
+    "axe-core": "^4.14.0",
+    "maplibre-gl": "6.16.0",
+    "playwright-core": "1.64.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
