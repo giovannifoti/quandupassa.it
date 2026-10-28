@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="it" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Quando Passa – Mappa delle fermate autobus ATM di Messina</title>
+  <meta name="description" content="Trova le fermate degli autobus ATM di Messina sulla mappa: cerca per nome o via, scopri le fermate più vicine a te e apri gli orari della palina sul sito ATM.">
+  <link rel="canonical" href="https://quandupassa.it/">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#faf8f5">
+  <meta name="format-detection" content="telephone=no">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="it_IT">
+  <meta property="og:site_name" content="Quando Passa">
+  <meta property="og:title" content="Quando Passa – Fermate autobus ATM Messina">
+  <meta property="og:description" content="Mappa delle fermate ATM di Messina con ricerca, fermate vicine, preferiti e collegamento agli orari delle paline.">
+  <meta property="og:url" content="https://quandupassa.it/">
+  <meta property="og:image" content="https://quandupassa.it/img/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Logo Quando Passa: segnaposto arancione con un autobus stilizzato">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="modulepreload" href="/js/app.js">
+  <link rel="modulepreload" href="/js/stops.js">
+  <link rel="modulepreload" href="/vendor/maplibre-gl-6.16.0/maplibre-gl.mjs">
+  <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
+  <script src="/js/sun.js"></script>
+  <script type="module" src="/js/app.js"></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://quandupassa.it/#website",
+        "name": "Quando Passa",
+        "url": "https://quandupassa.it/",
+        "inLanguage": "it-IT"
+      },
+      {
+        "@type": "WebApplication",
+        "name": "Quando Passa",
+        "url": "https://quandupassa.it/",
+        "description": "Mappa delle fermate degli autobus ATM di Messina con ricerca, fermate più vicine, preferiti e collegamento agli orari delle paline.",
+        "applicationCategory": "TravelApplication",
+        "operatingSystem": "Web",
+        "inLanguage": "it-IT",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+        "author": { "@type": "Person", "name": "Giovanni Foti", "url": "https://github.com/giovannifoti" },
+        "isPartOf": { "@id": "https://quandupassa.it/#website" }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#search-input">Vai alla ricerca fermate</a>
+  <a class="skip-link" href="/fermate/">Vai all'elenco testuale delle fermate</a>
+
+  <svg class="icon-sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H16a3.5 3.5 0 0 0 0-7H8a3.5 3.5 0 0 1 0-7h7.5"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+    <symbol id="i-bus" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="15" rx="3"/><path d="M5 11h14M8 18v3M16 18v3"/><circle cx="8.5" cy="14.5" r=".6"/><circle cx="15.5" cy="14.5" r=".6"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+  </svg>
+
+  <div class="panel" id="panel">
+    <header class="app-bar">
+      <div class="brand-row">
+        <a class="brand" href="/" aria-label="quandupassa.it, pagina iniziale">
+          <svg class="brand-mark" viewBox="0 0 64 80" aria-hidden="true" focusable="false"><path class="brand-pin" d="M32 2C15.4 2 2 15.1 2 31.5 2 52 32 78 32 78s30-26 30-46.5C62 15.1 48.6 2 32 2Z"/><rect class="brand-bus" x="16" y="14" width="32" height="33" rx="7"/><rect class="brand-glass" x="20.5" y="18.5" width="23" height="13" rx="3"/><circle class="brand-glass" cx="23.5" cy="39.5" r="2.6"/><circle class="brand-glass" cx="40.5" cy="39.5" r="2.6"/><rect class="brand-bus" x="19" y="44" width="6" height="7" rx="2"/><rect class="brand-bus" x="39" y="44" width="6" height="7" rx="2"/></svg>
+          <span class="brand-name">quandupassa<span>.it</span></span>
+        </a>
+        <h1 class="tagline">Fermate autobus ATM Messina</h1>
+      </div>
+      <form class="search" id="search-form" role="search" action="/" method="get">
+        <label class="visually-hidden" for="search-input">Cerca una fermata per nome, via o piazza</label>
+        <svg class="icon search-icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+        <input id="search-input" name="q" type="search" placeholder="Cerca fermata o via" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-controls="results" aria-describedby="results-status">
+        <button class="icon-button search-clear" id="search-clear" type="button" aria-label="Cancella ricerca" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-close"/></svg></button>
+      </form>
+      <button class="icon-button info-button" id="info-button" type="button" aria-label="Informazioni su Quando Passa" aria-controls="sheet" aria-expanded="false"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-info"/></svg></button>
+    </header>
+
+    <div class="results" id="results" hidden>
+      <p class="results-status" id="results-status" role="status" aria-live="polite"></p>
+      <ul class="stop-list" id="results-list" aria-label="Fermate trovate"></ul>
+    </div>
+
+    <nav class="actions" aria-label="Azioni rapide">
+      <button class="button button-primary" id="nearby-button" type="button" aria-controls="sheet">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-locate"/></svg>
+        <span>Fermate vicine</span>
+      </button>
+      <button class="button button-secondary" id="favorites-button" type="button" aria-controls="sheet" aria-expanded="false">
+        <svg class="icon icon-star" aria-hidden="true" focusable="false"><use href="#i-star"/></svg>
+        <span>Preferiti</span>
+        <span class="count-badge" id="favorites-count" hidden></span>
+      </button>
+    </nav>
+
+    <section class="sheet" id="sheet" aria-labelledby="sheet-title" hidden>
+      <div class="sheet-header">
+        <button class="icon-button" id="sheet-back" type="button" aria-label="Indietro" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-back"/></svg></button>
+        <div class="sheet-heading">
+          <p class="sheet-kicker" id="sheet-kicker"></p>
+          <h2 class="sheet-title" id="sheet-title" tabindex="-1"></h2>
+        </div>
+        <button class="icon-button" id="sheet-close" type="button" aria-label="Chiudi pannello"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-close"/></svg></button>
+      </div>
+      <div class="sheet-body" id="sheet-body"></div>
+    </section>
+  </div>
+
+  <main class="map-area" id="main">
+    <div class="map" id="map" role="region" aria-label="Mappa interattiva delle fermate autobus di Messina"></div>
+    <div class="map-loading" id="map-loading" aria-hidden="true"><span class="spinner"></span></div>
+    <p class="map-attribution"><a href="https://openfreemap.org/" rel="noopener" target="_blank">OpenFreeMap</a> <a href="https://www.openmaptiles.org/" rel="noopener" target="_blank">© OpenMapTiles</a> Dati da <a href="https://www.openstreetmap.org/copyright" rel="noopener" target="_blank">OpenStreetMap</a></p>
+
+    <section class="about" id="about" aria-labelledby="about-title" hidden>
+      <h2 id="about-title" class="visually-hidden">Informazioni su Quando Passa</h2>
+      <p class="about-lead">Quando Passa è una mappa veloce delle <strong>fermate degli autobus ATM di Messina</strong>, pensata per lo smartphone: trovi la fermata giusta e ne apri gli orari in pochi tocchi.</p>
+
+      <h3>Come si usa</h3>
+      <ul class="about-list">
+        <li><strong>Cerca</strong> una fermata per nome, via o piazza (es. «Cavour», «viale San Martino», «Caronte»).</li>
+        <li><strong>Fermate vicine</strong> mostra le fermate più vicine alla tua posizione, con distanza e tempo a piedi stimato.</li>
+        <li><strong>Orari della fermata</strong> apre la pagina della palina sul sito di ATM Messina.</li>
+        <li><strong>Salva</strong> le fermate che usi più spesso: le ritrovi in «Preferiti» e in giallo sulla mappa.</li>
+      </ul>
+
+      <h3>Da dove arrivano i dati</h3>
+      <p>Le posizioni delle fermate e i codici palina provengono dal dataset del progetto, basato sui riferimenti pubblici delle paline ATM. Gli orari sono forniti direttamente dal sito di <a href="https://www.atmmessinaspa.it/" rel="noopener" target="_blank">ATM Messina</a>. La cartografia è di <a href="https://openfreemap.org/" rel="noopener" target="_blank">OpenFreeMap</a> con dati © <a href="https://www.openstreetmap.org/copyright" rel="noopener" target="_blank">OpenStreetMap</a>.</p>
+      <p>Non trovi la mappa comoda? Consulta l'<a href="/fermate/">elenco completo delle fermate</a> in ordine alfabetico.</p>
+
+      <h3>Privacy</h3>
+      <ul class="about-list">
+        <li>Nessuna registrazione, nessun cookie e nessuno strumento di analisi o pubblicità.</li>
+        <li>La posizione viene richiesta solo quando tocchi «Fermate vicine» ed è usata esclusivamente nel tuo browser: non viene inviata a nessun server.</li>
+        <li>I preferiti sono salvati solo su questo dispositivo (memoria locale del browser).</li>
+        <li>Per mostrare la mappa il browser scarica le tessere cartografiche da OpenFreeMap, che riceve quindi il tuo indirizzo IP come per qualsiasi sito web.</li>
+      </ul>
+
+      <h3>Chi lo realizza</h3>
+      <p>Quando Passa è un progetto di <a href="https://github.com/giovannifoti" rel="noopener" target="_blank">Giovanni Foti</a>. Il codice è pubblico su <a href="https://github.com/giovannifoti/quandupassa.it" rel="noopener" target="_blank">GitHub</a>: segnalazioni e suggerimenti sono benvenuti.</p>
+    </section>
+
+    <noscript>
+      <div class="noscript">
+        <p><strong>Per usare la mappa interattiva è necessario JavaScript.</strong></p>
+        <p>Puoi comunque consultare l'<a href="/fermate/">elenco completo delle fermate ATM di Messina</a> con i collegamenti agli orari delle paline.</p>
+      </div>
+    </noscript>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

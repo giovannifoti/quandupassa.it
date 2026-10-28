@@ -1,0 +1,67 @@
+# Configurazione Netlify (ha la precedenza sulle impostazioni dell'interfaccia web).
+# Sito statico: nessun comando di build, si pubblica la cartella public/.
+# Le pagine generate (fermate/, sitemap.xml, robots.txt) e i file in vendor/
+# vengono prodotti in locale con "npm run vendor && npm run build" e versionati.
+
+[build]
+  publish = "public"
+  command = ""
+
+# Vecchi percorsi della versione precedente del sito (es. service worker già installati).
+[[redirects]]
+  from = "/style.css"
+  to = "/css/app.css"
+  status = 301
+
+[[redirects]]
+  from = "/script.js"
+  to = "/js/app.js"
+  status = 301
+
+# ---------------------------------------------------------------- sicurezza
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://tiles.openfreemap.org; font-src 'self'; connect-src 'self' https://tiles.openfreemap.org; worker-src 'self' blob:; child-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(self), camera=(), microphone=(), payment=(), usb=(), bluetooth=(), magnetometer=(), gyroscope=(), accelerometer=(), browsing-topics=()"
+    Cross-Origin-Opener-Policy = "same-origin"
+    Strict-Transport-Security = "max-age=31536000"
+
+# ---------------------------------------------------------------- cache
+
+# Librerie con versione nel percorso: non cambiano mai.
+[[headers]]
+  for = "/vendor/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# File dell'app senza hash nel nome: sempre rivalidati (ETag), così ogni deploy è subito visibile.
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json; charset=utf-8"
+    Cache-Control = "public, max-age=0, must-revalidate"
