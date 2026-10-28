@@ -1,5 +1,7 @@
 import {
+  ATM_LINKS,
   ZONE_ORDER,
+  appStoreFor,
   directionsUrl,
   distanceMeters,
   formatDistance,
@@ -469,18 +471,7 @@ function renderStopView(stop) {
   }
   if (chips.childElementCount) fragment.append(chips);
 
-  if (stop.arrivalsUrl) {
-    const arrivals = el('a', {
-      class: 'button button-primary button-block',
-      href: stop.arrivalsUrl,
-      target: '_blank',
-      rel: 'noopener'
-    }, icon('i-clock'), el('span', {}, 'Orari della fermata'), icon('i-external', 'icon-small'));
-    arrivals.setAttribute('aria-label', `Orari della fermata ${stop.name} sul sito ATM Messina (si apre in una nuova scheda)`);
-    fragment.append(arrivals, el('p', { class: 'hint' }, 'Si apre la pagina della palina sul sito di ATM Messina.'));
-  } else {
-    fragment.append(el('p', { class: 'notice' }, 'Per questa fermata non è disponibile il collegamento agli orari ATM: nei dati manca il codice della palina.'));
-  }
+  fragment.append(timesSection());
 
   const isFavorite = favorites.has(stop);
   const favoriteButton = el('button', {
@@ -521,6 +512,32 @@ function renderStopView(stop) {
   }
 
   dom.sheetBody.append(fragment);
+}
+
+// Tempi di attesa e orari: solo canali ufficiali ATM effettivamente raggiungibili.
+function timesSection() {
+  const section = el('div', { class: 'times' });
+  const store = appStoreFor(navigator.userAgent, navigator.maxTouchPoints);
+  const appLink = (href, label, extraClass = '') => {
+    const link = el('a', { class: `button button-primary ${extraClass}`.trim(), href, target: '_blank', rel: 'noopener' },
+      icon('i-clock'), el('span', {}, label), icon('i-external', 'icon-small'));
+    link.setAttribute('aria-label', `${label}: scarica l'app ufficiale ATM MovUp (si apre in una nuova scheda)`);
+    return link;
+  };
+
+  if (store) {
+    section.append(appLink(store, 'Tempi di attesa con ATM MovUp', 'button-block'));
+  } else {
+    section.append(el('div', { class: 'store-row' },
+      appLink(ATM_LINKS.appStore, 'App Store'),
+      appLink(ATM_LINKS.googlePlay, 'Google Play')
+    ));
+  }
+  section.append(el('p', { class: 'hint' },
+    'I tempi di attesa in tempo reale sono nell’app ufficiale ATM MovUp. ',
+    el('a', { href: ATM_LINKS.lines, target: '_blank', rel: 'noopener' }, 'Orari delle linee sul sito ATM')
+  ));
+  return section;
 }
 
 function renderNearbyView() {
@@ -569,7 +586,7 @@ function renderFavoritesView() {
     dom.sheetBody.append(el('div', { class: 'empty-state' },
       icon('i-star', 'empty-icon'),
       el('p', { class: 'empty-title' }, 'Nessuna fermata salvata'),
-      el('p', {}, 'Apri una fermata dalla mappa o dalla ricerca e tocca «Salva»: la ritroverai qui, pronta per controllare gli orari.')
+      el('p', {}, 'Apri una fermata dalla mappa o dalla ricerca e tocca «Salva»: la ritroverai qui e in giallo sulla mappa.')
     ));
     return;
   }
@@ -597,17 +614,6 @@ function renderFavoritesView() {
 
 function favoriteActions(stop) {
   const actions = [];
-  if (stop.arrivalsUrl) {
-    const arrivals = el('a', {
-      class: 'icon-button icon-button-tonal',
-      href: stop.arrivalsUrl,
-      target: '_blank',
-      rel: 'noopener',
-      title: 'Orari della fermata'
-    }, icon('i-clock'));
-    arrivals.setAttribute('aria-label', `Orari di ${stop.name} sul sito ATM (nuova scheda)`);
-    actions.push(arrivals);
-  }
   const remove = el('button', {
     class: 'icon-button',
     type: 'button',

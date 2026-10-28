@@ -63,7 +63,7 @@ test('la home si carica senza errori né violazioni CSP e mostra la mappa', asyn
   await context.close();
 });
 
-test('ricerca → scheda fermata con link agli orari', async () => {
+test('ricerca → scheda fermata con link ai canali ufficiali ATM', async () => {
   const { page, context, problems } = await openPage();
   await waitForStops(page);
   await page.fill('#search-input', 'caronte centro');
@@ -72,8 +72,10 @@ test('ricerca → scheda fermata con link agli orari', async () => {
   await page.keyboard.press('Enter');
   await page.waitForSelector('#sheet:not([hidden])');
   assert.equal(await page.textContent('#sheet-title'), 'CARONTE');
+  // Pulsante verso lo store dell'app ufficiale (uno su smartphone, due su desktop).
   const href = await page.getAttribute('#sheet-body a.button-primary', 'href');
-  assert.equal(href, 'https://www.atmmessinaspa.it/smartpoles2.php?palina=1555');
+  assert.match(href, /^https:\/\/(play\.google\.com|apps\.apple\.com)\//);
+  assert.equal(await page.getAttribute('#sheet-body .hint a', 'href'), 'https://www.atmmessinaspa.it/servizio_bus.php?pag=2&tipo=1');
   assert.match(page.url(), /\?fermata=palina-1555$/);
   assert.deepEqual(problems, []);
   await context.close();

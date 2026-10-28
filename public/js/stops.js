@@ -1,8 +1,13 @@
 // Gestione dati fermate: normalizzazione, ricerca e distanze.
 // Modulo senza dipendenze dal DOM, così può essere testato con Node.
 
-export const ATM_ORIGIN = 'https://www.atmmessinaspa.it';
-const ATM_PATH = '/smartpoles2.php';
+// Canali ufficiali ATM verificati: la pagina "smartpoles" per palina non è
+// accessibile dall'esterno ("Accesso non consentito"), quindi non va linkata.
+export const ATM_LINKS = {
+  lines: 'https://www.atmmessinaspa.it/servizio_bus.php?pag=2&tipo=1',
+  appStore: 'https://apps.apple.com/it/app/atm-movup/id1576162531',
+  googlePlay: 'https://play.google.com/store/apps/details?id=net.pluservice.atmmessina'
+};
 
 const ZONE_LABELS = { nord: 'Nord', centro: 'Centro', sud: 'Sud' };
 export const ZONE_ORDER = ['nord', 'centro', 'sud'];
@@ -61,11 +66,11 @@ export function extractStopCode(url) {
   }
 }
 
-// Il link agli orari viene ricostruito dal codice palina e mai copiato
-// dal dataset: così un dato corrotto non può iniettare URL arbitrari.
-export function arrivalsUrl(code) {
-  if (!/^[0-9A-Za-z_-]{1,12}$/.test(code)) return '';
-  return `${ATM_ORIGIN}${ATM_PATH}?palina=${encodeURIComponent(code)}`;
+// Sceglie lo store dell'app ATM MovUp adatto al dispositivo (null su desktop).
+export function appStoreFor(userAgent = '', maxTouchPoints = 0) {
+  if (/iPhone|iPad|iPod/i.test(userAgent) || (/Macintosh/i.test(userAgent) && maxTouchPoints > 1)) return ATM_LINKS.appStore;
+  if (/Android/i.test(userAgent)) return ATM_LINKS.googlePlay;
+  return null;
 }
 
 export function directionsUrl(stop) {
@@ -119,7 +124,9 @@ export function parseStops(raw) {
     if (!Number.isFinite(lat) || !Number.isFinite(lon) || !isPlausibleCoordinate(lat, lon)) return;
 
     const name = item.name.trim().replace(/\s+/g, ' ');
-    const code = extractStopCode(item.url);
+    // Il codice palina è usato solo come identificativo e testo: deve essere alfanumerico.
+    const rawCode = extractStopCode(item.url);
+    const code = /^[0-9A-Za-z_-]{1,12}$/.test(rawCode) ? rawCode : '';
     const id = uniqueId(code ? `palina-${code}` : `idx-${index}`);
     const { title, direction } = splitDirection(name);
 
@@ -133,7 +140,6 @@ export function parseStops(raw) {
       lat,
       lon,
       zone: getZone(lat),
-      arrivalsUrl: arrivalsUrl(code),
       searchText: buildSearchText(name)
     });
   });
