@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Quando Passa</string>
+    <string name="title_activity_main">Quando Passa</string>
+    <string name="package_name">it.quandupassa.app</string>
+    <string name="custom_url_scheme">it.quandupassa.app</string>
+</resources>
