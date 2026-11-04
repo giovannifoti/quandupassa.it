@@ -78,6 +78,10 @@ npm run build        # rigenera /fermate/, sitemap e robots
 
 Per aggiornare MapLibre: cambiare la versione in `package.json`, eseguire `npm install && npm run vendor` e aggiornare il numero di versione in `public/js/map.js`, `public/sw.js` e `public/index.html` (un test verifica che siano allineati). A ogni modifica dei file dell'app conviene incrementare `VERSION` in `public/sw.js`.
 
+## App iOS e Android
+
+La cartella [`mobile/`](mobile/README.md) contiene l'app nativa (Capacitor), che riusa dataset, ricerca e preferiti di `public/js/`. Non viene pubblicata da Netlify e non modifica il sito: istruzioni di build, test e pubblicazione sugli store in [`mobile/README.md`](mobile/README.md).
+
 ## Pubblicazione
 
 Ogni push su `main` viene pubblicato automaticamente da Netlify (nessun comando di build: si pubblica `public/` così com'è). Le pull request generano un deploy di anteprima.
