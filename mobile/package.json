@@ -1,0 +1,45 @@
+{
+  "name": "quandupassa-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "App iOS e Android di Quando Passa: fermate autobus ATM Messina.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 5174 --strictPort",
+    "assets": "node scripts/make-assets.mjs",
+    "sync": "npm run build && cap sync",
+    "ios": "npm run sync && cap open ios",
+    "android": "npm run sync && cap open android",
+    "test": "node --test \"tests/unit/*.test.mjs\"",
+    "test:e2e": "npm run build && node --test --test-concurrency=1 \"tests/e2e/*.test.mjs\"",
+    "lint": "node scripts/lint.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/browser": "^8.0.5",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/geolocation": "^8.2.4",
+    "@capacitor/ios": "^8.6.0",
+    "@capacitor/network": "^8.0.1",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/share": "^8.0.3",
+    "@capacitor/splash-screen": "^8.0.2",
+    "maplibre-gl": "^6.16.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.0",
+    "@eslint/js": "^9.39.5",
+    "axe-core": "^4.14.0",
+    "eslint": "^9.39.5",
+    "globals": "^17.14.0",
+    "playwright-core": "^1.64.1",
+    "sharp": "^0.35.5",
+    "vite": "^8.3.5"
+  }
+}

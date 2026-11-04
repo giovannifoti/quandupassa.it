@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="it" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://tiles.openfreemap.org; font-src 'self'; connect-src 'self' https://tiles.openfreemap.org; worker-src 'self' blob:; child-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="color-scheme" content="light dark">
+  <meta name="format-detection" content="telephone=no, address=no, email=no">
+  <meta name="referrer" content="no-referrer">
+  <title>Quando Passa</title>
+  <link rel="stylesheet" href="./src/styles.css">
+  <script type="module" src="./src/main.js"></script>
+</head>
+<body>
+  <svg class="icon-sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-locate" viewBox="0 0 24 24"><path d="M3 11.5 21 3l-8.5 18-2-7.5z"/></symbol>
+    <symbol id="i-near" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-walk" viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="m9 21 2.5-7.5L14 16v5M7 12l2.5-4 4 1.5 2.5 3.5M11.5 13.5 10 8"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+    <symbol id="i-bus" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="15" rx="3"/><path d="M5 11h14M8 18v3M16 18v3"/><circle cx="8.5" cy="14.5" r=".6"/><circle cx="15.5" cy="14.5" r=".6"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></symbol>
+    <symbol id="i-offline" viewBox="0 0 24 24"><path d="M2 8.8a15 15 0 0 1 4.2-2.6M22 8.8A15 15 0 0 0 10.7 5M5 12.6a10 10 0 0 1 3.3-2M19 12.6a10 10 0 0 0-2.6-1.7M8.5 16.1a5 5 0 0 1 7 0M12 20h.01M3 3l18 18"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+  </svg>
+
+  <div class="app" id="app">
+    <main class="map-area" aria-label="Mappa">
+      <div class="map" id="map" role="region" aria-label="Mappa delle fermate. Per un elenco accessibile usa la ricerca o Fermate vicine."></div>
+      <div class="map-placeholder" id="map-placeholder" hidden>
+        <svg class="icon placeholder-icon" aria-hidden="true"><use href="#i-map"/></svg>
+        <p class="placeholder-title" id="map-placeholder-title"></p>
+        <p class="placeholder-text" id="map-placeholder-text"></p>
+      </div>
+      <div class="map-loading" id="map-loading" aria-hidden="true"><span class="spinner"></span></div>
+    </main>
+
+    <header class="top" id="top">
+      <form class="search" id="search-form" role="search" action="#">
+        <button class="search-lead" id="search-back" type="button" aria-label="Chiudi la ricerca" tabindex="-1">
+          <svg class="icon icon-search" aria-hidden="true"><use href="#i-search"/></svg>
+          <svg class="icon icon-back" aria-hidden="true"><use href="#i-back"/></svg>
+        </button>
+        <label class="visually-hidden" for="search-input">Cerca una fermata per nome, via o piazza</label>
+        <input id="search-input" type="search" placeholder="Cerca fermata, via o piazza" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" inputmode="search" maxlength="80" aria-controls="search-panel" aria-describedby="search-status">
+        <button class="icon-button search-clear" id="search-clear" type="button" aria-label="Cancella il testo" hidden><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
+        <button class="icon-button search-info" id="info-button" type="button" aria-label="Informazioni e impostazioni"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg></button>
+      </form>
+      <nav class="chips-bar" id="chips-bar" aria-label="Azioni rapide">
+        <button class="chip-button" id="nearby-chip" type="button"><svg class="icon" aria-hidden="true"><use href="#i-near"/></svg><span>Fermate vicine</span></button>
+        <button class="chip-button" id="favorites-chip" type="button"><svg class="icon icon-star" aria-hidden="true"><use href="#i-star"/></svg><span>Preferiti</span><span class="chip-count" id="favorites-count" hidden></span></button>
+      </nav>
+      <p class="offline-banner" id="offline-banner" role="status" hidden>
+        <svg class="icon" aria-hidden="true"><use href="#i-offline"/></svg>
+        <span>Sei offline. Ricerca e preferiti funzionano; mappa e orari richiedono Internet.</span>
+      </p>
+    </header>
+
+    <section class="search-panel" id="search-panel" aria-label="Ricerca fermate" hidden>
+      <p class="visually-hidden" id="search-status" role="status" aria-live="polite"></p>
+      <div class="search-scroll" id="search-scroll"></div>
+    </section>
+
+    <section class="sheet" id="sheet" aria-labelledby="sheet-title" data-snap="peek">
+      <div class="sheet-overhang">
+        <p class="map-attribution" id="map-attribution"><a href="https://openfreemap.org/" data-external>OpenFreeMap</a> <a href="https://www.openmaptiles.org/" data-external>© OpenMapTiles</a> <a href="https://www.openstreetmap.org/copyright" data-external>© OpenStreetMap</a></p>
+        <button class="fab" id="locate-button" type="button" aria-label="Mostra la mia posizione"><svg class="icon" aria-hidden="true"><use href="#i-locate"/></svg></button>
+      </div>
+      <div class="sheet-drag" id="sheet-drag">
+        <button class="sheet-handle" id="sheet-handle" type="button" aria-label="Espandi il pannello" aria-controls="sheet-body" aria-expanded="false"><span></span></button>
+        <div class="sheet-header">
+          <button class="icon-button" id="sheet-back" type="button" aria-label="Indietro" hidden><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg></button>
+          <div class="sheet-heading">
+            <p class="sheet-kicker" id="sheet-kicker"></p>
+            <h1 class="sheet-title" id="sheet-title" tabindex="-1"></h1>
+          </div>
+          <button class="icon-button icon-button-soft" id="sheet-close" type="button" aria-label="Chiudi" hidden><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
+        </div>
+      </div>
+      <div class="sheet-body" id="sheet-body"></div>
+    </section>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"><span class="toast-text" id="toast-text"></span><button class="toast-action" id="toast-action" type="button" hidden></button></div>
+  </div>
+
+  <noscript><p class="noscript">Quando Passa richiede JavaScript.</p></noscript>
+</body>
+</html>
