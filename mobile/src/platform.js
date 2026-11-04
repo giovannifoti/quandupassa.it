@@ -130,7 +130,9 @@ export async function locate() {
     if (reason !== 'timeout' && reason !== 'unavailable') return { ok: false, reason };
     // Senza segnale GPS (es. al chiuso) riproviamo con la rete, meno precisa.
     try {
-      return { ok: true, precise: false, position: toPosition(await get({ enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 })) };
+      // "precise" descrive il permesso concesso, non la singola lettura:
+      // la precisione effettiva è in position.accuracy.
+      return { ok: true, precise: permission.precise, position: toPosition(await get({ enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 })) };
     } catch (retryError) {
       return { ok: false, reason: reasonFrom(retryError) };
     }

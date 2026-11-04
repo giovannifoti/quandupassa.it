@@ -222,11 +222,13 @@ input {
   background: var(--surface-2);
 }
 
+/* Cerchio visibile di 36 px, area di tocco di 44 px. */
 .icon-button-soft {
-  background: var(--surface-2);
-  width: 36px;
-  height: 36px;
-  margin: 4px;
+  background: radial-gradient(circle, var(--surface-2) 17.5px, transparent 18px);
+}
+
+.icon-button-soft:active {
+  background: radial-gradient(circle, var(--surface-3) 17.5px, transparent 18px);
 }
 
 .icon-button-soft .icon {
@@ -253,7 +255,7 @@ input {
   flex: none;
   align-items: center;
   gap: 6px;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 14px;
   border: 0;
   border-radius: 999px;
@@ -262,8 +264,6 @@ input {
   box-shadow: var(--shadow-sm);
   font-size: 0.9375rem;
   font-weight: 650;
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
 }
 
 .chip-button .icon {
@@ -409,6 +409,12 @@ input {
   background: var(--surface);
   box-shadow: 0 -4px 24px rgba(16, 32, 38, 0.16);
   transform: translate3d(0, calc(var(--sheet-max) - var(--sheet-height)), 0);
+}
+
+/* Livello dedicato solo durante trascinamento e animazione: un livello
+   permanente a tutta altezza consuma memoria video (limiti su Android). */
+.sheet.is-animating,
+.sheet.is-dragging {
   will-change: transform;
 }
 
@@ -578,7 +584,7 @@ input {
 }
 
 .link-button {
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 4px;
   border: 0;
   background: none;
@@ -918,6 +924,16 @@ input {
   text-align: center;
 }
 
+.licenses {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--ink-2);
+  font: 0.75rem/1.45 ui-monospace, "SF Mono", Menlo, monospace;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 /* ------------------------------------------------------------- toast */
 
 .toast {
@@ -951,7 +967,7 @@ input {
 
 .toast-action {
   flex: none;
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 4px;
   border: 0;
   background: none;

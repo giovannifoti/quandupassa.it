@@ -111,7 +111,7 @@ init().catch(error => {
 /* ================================================================ avvio */
 
 async function init() {
-  store = await platform.createStore(['favorites', 'recents', 'settings', 'camera']);
+  store = await platform.createStore(['favorites', 'recents', 'settings', 'camera', 'session']);
   state.settings = parseSettings(store.getItem('settings'));
   applyTheme();
 
@@ -146,7 +146,7 @@ async function init() {
 
   setOnline(await platform.networkStatus(), { quiet: true });
   platform.appVersion().then(version => { state.nativeVersion = version; });
-  restoreFromUrl();
+  if (!restoreFromUrl()) restoreSession();
   // La mappa arriva dopo il primo disegno dell'interfaccia.
   window.setTimeout(initMap, 0);
 }
@@ -156,6 +156,27 @@ function restoreFromUrl() {
   const id = new URLSearchParams(window.location.search).get('fermata');
   const stop = id && state.byId.get(id);
   if (stop) openStop(stop, { reset: true, focus: false });
+  return Boolean(stop);
+}
+
+// Se il sistema ha chiuso l'app in background (memoria), alla riapertura
+// ritroviamo la fermata che era aperta, purché sia passato poco tempo.
+const SESSION_MAX_AGE = 30 * 60000;
+
+function saveSession() {
+  const view = currentView();
+  store.setItem('session', JSON.stringify(view.type === 'stop' ? { stop: view.stop.id, at: Date.now() } : { at: Date.now() }));
+}
+
+function restoreSession() {
+  try {
+    const session = JSON.parse(store.getItem('session') || 'null');
+    if (!session || Date.now() - Number(session.at) > SESSION_MAX_AGE) return;
+    const stop = state.byId.get(String(session.stop || ''));
+    if (stop) openStop(stop, { reset: true, focus: false, remember: false });
+  } catch {
+    /* sessione non valida: si parte dalla schermata iniziale */
+  }
 }
 
 /* ================================================================ mappa */
@@ -329,7 +350,13 @@ function bindEvents() {
     updateFavoritesCount();
   });
 
-  window.addEventListener('resize', debounce(() => mapApi?.resize(), 150));
+  // Rotazione o tastiera che si chiude: la fermata aperta resta al centro
+  // della parte di mappa visibile.
+  window.addEventListener('resize', debounce(() => {
+    mapApi?.resize();
+    const view = currentView();
+    if (view.type === 'stop') mapApi?.focus(view.stop, { zoom: 0, padding: mapPadding() });
+  }, 150));
   window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', () => applyTheme());
 }
 
@@ -346,6 +373,7 @@ function bindPlatform() {
     } else {
       stopWatching();
       saveCamera();
+      saveSession();
     }
   });
 
@@ -400,6 +428,9 @@ function handleActionClick(event) {
       break;
     case 'show-map':
       sheet.set('peek');
+      break;
+    case 'licenses':
+      openView({ type: 'licenses' }, { snap: 'full' });
       break;
     default:
       break;
@@ -568,6 +599,7 @@ function renderSheet({ focus = true } = {}) {
   else if (view.type === 'nearby') renderNearby();
   else if (view.type === 'location-error') renderLocationError(view.reason);
   else if (view.type === 'info') renderInfo();
+  else if (view.type === 'licenses') renderLicenses();
 
   if (view.type !== 'stop') mapApi?.setSelected(view.type === 'nearby' ? nearbyList()[0]?.stop : null);
   dom.nearbyChip.setAttribute('aria-pressed', String(view.type === 'nearby'));
@@ -623,12 +655,14 @@ function renderHome() {
 
 /* ---------------------------------------------------------------- fermata */
 
-function openStop(stop, { reset = false, fromMap = false, focus = true } = {}) {
+function openStop(stop, { reset = false, fromMap = false, focus = true, remember = true } = {}) {
   const view = currentView();
   const replace = view.type === 'stop';
   openView({ type: 'stop', stop }, { reset: reset || (fromMap && view.type !== 'nearby'), replace, snap: 'half', focus });
-  state.recents = pushRecent(state.recents, stop.id);
-  store.setItem('recents', JSON.stringify(state.recents));
+  if (remember) {
+    state.recents = pushRecent(state.recents, stop.id);
+    store.setItem('recents', JSON.stringify(state.recents));
+  }
   mapApi?.setSelected(stop);
   window.requestAnimationFrame(() => mapApi?.focus(stop, { zoom: fromMap ? 16 : 16.5, padding: mapPadding() }));
 }
@@ -911,9 +945,22 @@ function renderInfo() {
     el('p', {}, 'Posizioni delle fermate e codici palina: dataset del progetto Quando Passa, basato sui riferimenti pubblici delle paline ATM.'),
     el('p', {}, 'Mappa: ', linkButton('https://openfreemap.org/', 'OpenFreeMap'), ', ', linkButton('https://www.openmaptiles.org/', '© OpenMapTiles'), ', dati ', linkButton('https://www.openstreetmap.org/copyright', '© OpenStreetMap'), ' (ODbL).'),
     el('p', {}, 'Software: ', linkButton('https://maplibre.org/', 'MapLibre GL JS'), ' (BSD-3-Clause), ', linkButton('https://capacitorjs.com/', 'Capacitor'), ' (MIT).'),
+    el('p', {}, el('button', { class: 'inline-link', type: 'button', 'data-action': 'licenses' }, 'Licenze del software open source')),
     el('p', {}, 'Progetto di Giovanni Foti. Codice e segnalazioni su ', linkButton('https://github.com/giovannifoti/quandupassa.it', 'GitHub'), '.'),
     el('p', { class: 'app-version' }, `Versione ${state.nativeVersion || APP_VERSION}`)
   ));
+}
+
+// Testo delle licenze incluso nell'app (generato da scripts/licenses.mjs).
+function renderLicenses() {
+  dom.sheetKicker.textContent = 'Informazioni';
+  dom.sheetTitle.textContent = 'Licenze open source';
+  const pre = el('pre', { class: 'licenses' }, 'Caricamento…');
+  dom.sheetBody.append(pre);
+  fetch('./licenses.txt')
+    .then(response => (response.ok ? response.text() : Promise.reject(new Error(`HTTP ${response.status}`))))
+    .then(text => { pre.textContent = text; })
+    .catch(() => { pre.textContent = 'Impossibile leggere il file delle licenze.'; });
 }
 
 /* ================================================================ azioni */

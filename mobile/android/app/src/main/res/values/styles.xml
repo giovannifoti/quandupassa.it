@@ -13,6 +13,8 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
+        <!-- Colore dietro la WebView (visibile nelle barre di sistema con WebView < 140). -->
+        <item name="android:windowBackground">@color/app_background</item>
     </style>
 
 

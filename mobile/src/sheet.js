@@ -77,6 +77,7 @@ export function createSheet({ element, handle, dragArea, body, onChange }) {
     if (!drag.moved && Math.abs(dy) < 6) return;
     if (!drag.moved) {
       drag.moved = true;
+      element.classList.add('is-dragging');
       dragArea.setPointerCapture?.(event.pointerId);
     }
     const now = performance.now();
@@ -91,6 +92,7 @@ export function createSheet({ element, handle, dragArea, body, onChange }) {
     if (!drag || event.pointerId !== drag.id) return;
     const { moved, velocity } = drag;
     drag = null;
+    element.classList.remove('is-dragging');
     if (!moved) return;
     set(nearestSnap(current, velocity));
   }
@@ -115,6 +117,7 @@ export function createSheet({ element, handle, dragArea, body, onChange }) {
         return;
       }
       bodyTouch.active = true;
+      element.classList.add('is-dragging');
     }
     const now = performance.now();
     bodyTouch.velocity = (y - bodyTouch.lastY) / Math.max(1, now - bodyTouch.lastTime);
@@ -124,6 +127,7 @@ export function createSheet({ element, handle, dragArea, body, onChange }) {
     if (event.cancelable) event.preventDefault();
   }, { passive: false });
   body.addEventListener('touchend', () => {
+    element.classList.remove('is-dragging');
     if (bodyTouch?.active) set(nearestSnap(current, bodyTouch.velocity));
     bodyTouch = null;
   });

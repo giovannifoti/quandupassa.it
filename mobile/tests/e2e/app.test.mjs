@@ -139,7 +139,8 @@ test('preferiti: salvataggio, persistenza dopo il riavvio, rimozione con annulla
   assert.equal(await page.getAttribute('[data-action="toggle-favorite"]', 'aria-pressed'), 'true');
   assert.equal(await page.textContent('#favorites-count'), '1');
 
-  // Riavvio dell'app: i preferiti sono ancora lì, con gli orari a un tocco.
+  // Riavvio dell'app dalla schermata iniziale: i preferiti sono ancora lì, con gli orari a un tocco.
+  await page.click('#sheet-close');
   await page.reload();
   await page.waitForSelector('html[data-ready="true"]', { state: 'attached' });
   assert.equal(await page.textContent('#sheet-title'), 'Le tue fermate');
@@ -181,6 +182,32 @@ test('fermate vicine: posizione, distanze, tempo a piedi e ordine per vicinanza'
   await page.waitForFunction(() => document.getElementById('sheet').dataset.view === 'nearby');
   assert.deepEqual(problems, []);
   await context.close();
+});
+
+test('ripristino: dopo una chiusura in background si ritrova la fermata aperta', async () => {
+  const { page, context } = await openApp();
+  await search(page, 'caronte centro');
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.getElementById('sheet').dataset.view === 'stop');
+  // L'app va in background (nel browser: pagina nascosta) e il sistema la chiude.
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await page.waitForTimeout(100);
+  await page.reload();
+  await page.waitForSelector('html[data-ready="true"]', { state: 'attached' });
+  await page.waitForFunction(() => document.getElementById('sheet').dataset.view === 'stop');
+  assert.equal(await page.textContent('#sheet-title'), 'Caronte');
+  await context.close();
+
+  // Una sessione di più di 30 minuti fa viene ignorata.
+  const old = { stop: 'palina-1555', at: Date.now() - 3600000 };
+  const reopened = await openApp({
+    storageState: { cookies: [], origins: [{ origin: BASE, localStorage: [{ name: 'CapacitorStorage.session', value: JSON.stringify(old) }] }] }
+  });
+  assert.equal(await reopened.page.getAttribute('#sheet', 'data-view'), 'home');
+  await reopened.context.close();
 });
 
 test('posizione negata: messaggio chiaro e alternativa di ricerca', async () => {
@@ -243,6 +270,10 @@ test('informazioni: privacy, crediti OpenStreetMap e avviso di app non ufficiale
   assert.match(text, /non lascia mai il dispositivo/);
   assert.match(text, /OpenStreetMap/);
   assert.match(text, /MapLibre/);
+  await page.click('[data-action="licenses"]');
+  await page.waitForFunction(() => /BSD-3-Clause/.test(document.querySelector('.licenses')?.textContent || ''));
+  assert.match(await page.textContent('.licenses'), /maplibre-gl 6\.16\.0/);
+  assert.equal(await page.isVisible('#sheet-back'), true);
   await context.close();
 });
 
@@ -258,7 +289,7 @@ const SIZES = [
 ];
 
 for (const size of SIZES) {
-  test(`layout ${size.name} (${size.width}×${size.height}): niente overflow, controlli visibili e grandi abbastanza`, async () => {
+  test(`layout ${size.name} (${size.width}×${size.height}): niente overflow, controlli visibili, target di tocco ≥ 44 px`, async () => {
     const { page, context } = await openApp({ width: size.width, height: size.height });
     await search(page, 'cavour');
     await page.keyboard.press('Enter');
@@ -274,7 +305,7 @@ for (const size of SIZES) {
         .filter(element => element.offsetParent !== null && !element.closest('.hint, .prose'))
         .filter(element => {
           const rect = element.getBoundingClientRect();
-          return rect.height < 36 || rect.width < 36;
+          return rect.height < 44 || rect.width < 44;
         }).map(element => element.getAttribute('aria-label') || element.textContent.trim());
       const times = document.querySelector('#sheet-body [data-action="times"]').getBoundingClientRect();
       return { overflow, smallTargets, timesVisible: times.top >= 0 && times.bottom <= window.innerHeight, timesHeight: times.height };
